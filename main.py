@@ -25,6 +25,9 @@ app.include_router(runs.router)
 app.include_router(audit.router)
 app.include_router(ui.router)
 from fastapi.responses import RedirectResponse
+from fastapi.exceptions import HTTPException as FastAPIHTTPException
+from starlette.requests import Request as StarletteRequest
+from fastapi.responses import JSONResponse
 
 @app.get("/")
 def read_root():
@@ -39,3 +42,10 @@ def read_current_user(current_user: dict = Depends(get_current_user)):
 @app.get("/admin-only")
 def admin_only(current_user: dict = Depends(require_role("admin"))):
     return {"message": f"Welcome, admin user {current_user['id']}"}
+
+@app.exception_handler(FastAPIHTTPException)
+async def custom_401_handler(request: StarletteRequest, exc: FastAPIHTTPException):
+    if exc.status_code == 401 and request.url.path.startswith("/ui"):
+        return RedirectResponse(url="/ui/login")
+
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
