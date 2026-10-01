@@ -16,23 +16,19 @@ from app.routes import audit
 load_dotenv()
 
 app = FastAPI()
-
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SessionMiddleware, secret_key=os.environ["SESSION_SECRET"])
 app.include_router(auth.router)
-
-
 app.include_router(documents.router)
 app.include_router(runs.router)
 app.include_router(audit.router)
 app.include_router(ui.router)
-
-
+from fastapi.responses import RedirectResponse
 
 @app.get("/")
 def read_root():
-    return {"message": "AuditSum is alive"}
+    return RedirectResponse(url="/ui/login")
 
 
 @app.get("/me")
