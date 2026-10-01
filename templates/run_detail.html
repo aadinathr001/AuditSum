@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Run #{{ run.id }}</h1>
+<p>Status: {{ run.status }} | Strategy: {{ run.strategy }} | Provider: {{ run.provider }}</p>
+<p>Citation verification: {{ verified_count }}/{{ total_count }}</p>
+
+<h2>Summary</h2>
+<p><strong>{{ result.title }}</strong></p>
+<p>{{ result.summary }}</p>
+
+<h2>Key Points</h2>
+<ul>
+{% for kp, c in key_points_with_verification %}
+<li>
+    {{ kp.point }}<br>
+    <small>Quote: "{{ kp.quote }}" —
+    <span class="{{ 'verified' if c else 'unverified' }}">{{ "VERIFIED" if c else "UNVERIFIED" }}</span></small>
+</li>
+{% endfor %}
+</ul>
+
+<h2>Lineage ({{ steps|length }} step(s))</h2>
+<table>
+<tr><th>Step</th><th>Kind</th><th>Tokens (prompt/completion)</th></tr>
+{% for s in steps %}
+<tr><td>{{ s.step_index }}</td><td>{{ s.kind }}</td><td>{{ s.prompt_tokens }} / {{ s.completion_tokens }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload a document</h1>
+<form method="post" action="/ui/upload" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".txt,.md" required><br><br>
+    <button type="submit">Upload</button>
+</form>
+
+{% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+
+{% if document %}
+<hr>
+<h2>Uploaded: {{ document.filename }}</h2>
+<p>Status: {{ document.status }}</p>
+<table>
+<tr><th>Check</th><th>Outcome</th><th>Reason</th></tr>
+{% for d in policy_decisions %}
+<tr class="{{ d.outcome }}">
+    <td>{{ d.check }}</td><td>{{ d.outcome }}</td><td>{{ d.reason }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% if document.status != "denied" %}
+<form method="post" action="/ui/documents/{{ document.id }}/runs">
+    <button type="submit">Summarize this document</button>
+</form>
+{% endif %}
+{% endif %}
+{% endblock %}
