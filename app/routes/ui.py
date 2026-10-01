@@ -33,8 +33,12 @@ router = APIRouter(prefix="/ui", tags=["ui"])
 
 
 @router.get("/login")
-def login_page(request: Request):
-    return templates.TemplateResponse(request, "login.html")
+def login_page(request: Request, reason: str | None = None):
+    message = None
+    if reason == "session_expired":
+        message = "Your session expired or you're not logged in. Please log in again."
+
+    return templates.TemplateResponse(request, "login.html", {"message": message})
 
 @router.post("/login")
 def login_submit(

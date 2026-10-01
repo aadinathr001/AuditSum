@@ -46,6 +46,6 @@ def admin_only(current_user: dict = Depends(require_role("admin"))):
 @app.exception_handler(FastAPIHTTPException)
 async def custom_401_handler(request: StarletteRequest, exc: FastAPIHTTPException):
     if exc.status_code == 401 and request.url.path.startswith("/ui"):
-        return RedirectResponse(url="/ui/login")
+        return RedirectResponse(url="/ui/login?reason=session_expired")
 
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
