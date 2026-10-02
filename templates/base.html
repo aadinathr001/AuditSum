@@ -278,8 +278,13 @@
             <div class="nav-links">
                 <a href="/ui/">Home</a>
                 <a href="/ui/upload">Upload</a>
+                {% set role = get_session_role(request) %}
+                {% if role in ("admin", "auditor") %}
                 <a href="/ui/audit">Auditor Console</a>
+                {% endif %}
+                {% if role == "admin" %}
                 <a href="/ui/admin">Admin</a>
+                {% endif %}
             </div>
         </div>
     </nav>
