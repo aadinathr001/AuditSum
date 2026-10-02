@@ -3,4 +3,8 @@
 <h1>AuditSum</h1>
 <p>Logged in as: {{ current_user.role }} (id {{ current_user.id }})</p>
 <p><a href="/ui/upload">Upload a document</a></p>
+
+<form method="post" action="/ui/logout">
+    <button type="submit">Log out</button>
+</form>
 {% endblock %}

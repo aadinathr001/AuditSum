@@ -165,3 +165,8 @@ def audit_verify_submit(
     result = verify_chain(session)
     events = session.scalars(select(AuditEvent).order_by(AuditEvent.seq.desc()).limit(20)).all()
     return templates.TemplateResponse(request, "audit.html", {"verify_result": result, "events": events})
+
+@router.post("/logout")
+def logout_submit(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/ui/login", status_code=303)
