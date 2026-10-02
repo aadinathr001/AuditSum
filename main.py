@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends , Response
 from starlette.middleware.sessions import SessionMiddleware
 from app.routes import auth
 from app.security.auth import get_current_user
@@ -30,10 +30,12 @@ from starlette.requests import Request as StarletteRequest
 from fastapi.responses import JSONResponse
 
 @app.get("/")
-@app.head("/")
 def read_root():
     return RedirectResponse(url="/ui/login")
 
+@app.head("/")
+def health_check():
+    return Response(status_code=200)
 
 @app.get("/me")
 def read_current_user(current_user: dict = Depends(get_current_user)):
