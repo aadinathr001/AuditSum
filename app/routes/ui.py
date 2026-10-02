@@ -30,6 +30,8 @@ from app.rate_limit import limiter, RUN_RATE_LIMIT
 from app.models import User, Control
 from app.models import PolicyDecision as PolicyDecisionRow
 
+import subprocess
+
 MAX_ROWS = 500
 
 router = APIRouter(prefix="/ui", tags=["ui"])
@@ -238,3 +240,34 @@ def admin_page(
         "runs": runs,
         "controls": controls,
     })
+
+
+
+
+@router.get("/admin/reset")
+def reset_page(
+    request: Request,
+    current_user: dict = Depends(require_role("admin")),
+):
+    if os.environ.get("ALLOW_DB_RESET") != "true":
+        raise HTTPException(status_code=404, detail="Not found")
+
+    return templates.TemplateResponse(request, "reset.html")
+
+
+@router.post("/admin/reset")
+def reset_submit(
+    request: Request,
+    confirm: str = Form(...),
+    current_user: dict = Depends(require_role("admin")),
+):
+    if os.environ.get("ALLOW_DB_RESET") != "true":
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if confirm != "RESET":
+        return templates.TemplateResponse(request, "reset.html", {"error": "You must type RESET exactly."})
+
+    subprocess.run(["alembic", "downgrade", "base"], check=True)
+    subprocess.run(["alembic", "upgrade", "head"], check=True)
+
+    return templates.TemplateResponse(request, "reset_done.html")
