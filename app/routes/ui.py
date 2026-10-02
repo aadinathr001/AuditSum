@@ -203,8 +203,20 @@ def audit_verify_submit(
     })
 
 @router.post("/logout")
-def logout_submit(request: Request):
+def logout_submit(request: Request, session: Session = Depends(get_session)):
+    user_id = request.session.get("user_id")
+    role = request.session.get("role")
+
     request.session.clear()
+
+    if user_id is not None:
+        append_event(
+            session, actor_id=user_id, actor_role=role,
+            action="auth.logout", entity_type="user", entity_id=user_id,
+            payload={},
+        )
+        session.commit()
+
     return RedirectResponse(url="/ui/login", status_code=303)
 
 
