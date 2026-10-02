@@ -27,6 +27,7 @@ from fastapi import UploadFile
 from app.pipeline.run_service import execute_run
 from app.rate_limit import limiter
 from app.rate_limit import limiter, RUN_RATE_LIMIT
+from app.models import User, Control
 
 
 router = APIRouter(prefix="/ui", tags=["ui"])
@@ -170,3 +171,23 @@ def audit_verify_submit(
 def logout_submit(request: Request):
     request.session.clear()
     return RedirectResponse(url="/ui/login", status_code=303)
+
+
+
+@router.get("/admin")
+def admin_page(
+    request: Request,
+    current_user: dict = Depends(require_role("admin")),
+    session: Session = Depends(get_session),
+):
+    users = session.scalars(select(User)).all()
+    documents = session.scalars(select(Document).order_by(Document.id.desc()).limit(20)).all()
+    runs = session.scalars(select(Run).order_by(Run.id.desc()).limit(20)).all()
+    controls = session.scalars(select(Control)).all()
+
+    return templates.TemplateResponse(request, "admin.html", {
+        "users": users,
+        "documents": documents,
+        "runs": runs,
+        "controls": controls,
+    })

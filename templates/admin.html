@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Admin</h1>
+
+<h2>Users</h2>
+<table>
+<tr><th>ID</th><th>Email</th><th>Role</th><th>Active</th></tr>
+{% for u in users %}
+<tr><td>{{ u.id }}</td><td>{{ u.email }}</td><td>{{ u.role }}</td><td>{{ u.is_active }}</td></tr>
+{% endfor %}
+</table>
+
+<h2>Model Controls</h2>
+<table>
+<tr><th>Key</th><th>Value</th></tr>
+{% for c in controls %}
+<tr><td>{{ c.key }}</td><td>{{ c.value }}</td></tr>
+{% endfor %}
+</table>
+<p><small>No controls set means the model is enabled by default.</small></p>
+
+<h2>Recent Documents (all users)</h2>
+<table>
+<tr><th>ID</th><th>Owner</th><th>Filename</th><th>Status</th></tr>
+{% for d in documents %}
+<tr><td>{{ d.id }}</td><td>{{ d.owner_id }}</td><td>{{ d.filename }}</td><td class="{{ d.status }}">{{ d.status }}</td></tr>
+{% endfor %}
+</table>
+
+<h2>Recent Runs (all users)</h2>
+<table>
+<tr><th>ID</th><th>Document</th><th>Requested By</th><th>Status</th><th>Provider</th><th>Strategy</th></tr>
+{% for r in runs %}
+<tr><td>{{ r.id }}</td><td>{{ r.document_id }}</td><td>{{ r.requested_by }}</td><td>{{ r.status }}</td><td>{{ r.provider }}</td><td>{{ r.strategy }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}
