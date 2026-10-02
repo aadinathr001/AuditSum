@@ -30,6 +30,7 @@ from app.rate_limit import limiter, RUN_RATE_LIMIT
 from app.models import User, Control
 from app.models import PolicyDecision as PolicyDecisionRow
 
+MAX_ROWS = 500
 
 router = APIRouter(prefix="/ui", tags=["ui"])
 
@@ -148,46 +149,57 @@ async def run_submit(
     })
 
 
+VALID_VIEWS = {
+    "events": (AuditEvent, AuditEvent.seq),
+    "documents": (Document, Document.id),
+    "runs": (Run, Run.id),
+    "policy_decisions": (PolicyDecisionRow, PolicyDecisionRow.id),
+    "citations": (Citation, Citation.id),
+}
+
+
+def fetch_view_rows(session: Session, view: str):
+    model, order_col = VALID_VIEWS[view]
+    return session.scalars(select(model).order_by(order_col.desc()).limit(MAX_ROWS)).all()
+
+
 @router.get("/audit")
 def audit_page(
     request: Request,
+    view: str = "events",
     current_user: dict = Depends(require_role("admin", "auditor")),
     session: Session = Depends(get_session),
 ):
-    events = session.scalars(select(AuditEvent).order_by(AuditEvent.seq.desc()).limit(20)).all()
-    documents = session.scalars(select(Document).order_by(Document.id.desc()).limit(20)).all()
-    runs = session.scalars(select(Run).order_by(Run.id.desc()).limit(20)).all()
-    policy_decisions = session.scalars(select(PolicyDecisionRow).order_by(PolicyDecisionRow.id.desc()).limit(20)).all()
-    citations = session.scalars(select(Citation).order_by(Citation.id.desc()).limit(20)).all()
+    if view not in VALID_VIEWS:
+        view = "events"
+
+    rows = fetch_view_rows(session, view)
 
     return templates.TemplateResponse(request, "audit.html", {
-        "events": events,
-        "documents": documents,
-        "runs": runs,
-        "policy_decisions": policy_decisions,
-        "citations": citations,
+        "view": view,
+        "rows": rows,
+        "max_rows": MAX_ROWS,
     })
+
 
 @router.post("/audit/verify")
 def audit_verify_submit(
     request: Request,
+    view: str = "events",
     current_user: dict = Depends(require_role("admin", "auditor")),
     session: Session = Depends(get_session),
 ):
+    if view not in VALID_VIEWS:
+        view = "events"
+
     result = verify_chain(session)
-    events = session.scalars(select(AuditEvent).order_by(AuditEvent.seq.desc()).limit(20)).all()
-    documents = session.scalars(select(Document).order_by(Document.id.desc()).limit(20)).all()
-    runs = session.scalars(select(Run).order_by(Run.id.desc()).limit(20)).all()
-    policy_decisions = session.scalars(select(PolicyDecisionRow).order_by(PolicyDecisionRow.id.desc()).limit(20)).all()
-    citations = session.scalars(select(Citation).order_by(Citation.id.desc()).limit(20)).all()
+    rows = fetch_view_rows(session, view)
 
     return templates.TemplateResponse(request, "audit.html", {
         "verify_result": result,
-        "events": events,
-        "documents": documents,
-        "runs": runs,
-        "policy_decisions": policy_decisions,
-        "citations": citations,
+        "view": view,
+        "rows": rows,
+        "max_rows": MAX_ROWS,
     })
 
 @router.post("/logout")
