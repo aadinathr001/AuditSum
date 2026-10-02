@@ -7,3 +7,5 @@ __pycache__/
 .vscode/
 create_user.py
 test/
+README.md
+initial_plan.md
