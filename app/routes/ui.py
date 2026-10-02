@@ -28,6 +28,7 @@ from app.pipeline.run_service import execute_run
 from app.rate_limit import limiter
 from app.rate_limit import limiter, RUN_RATE_LIMIT
 from app.models import User, Control
+from app.models import PolicyDecision as PolicyDecisionRow
 
 
 router = APIRouter(prefix="/ui", tags=["ui"])
@@ -154,8 +155,18 @@ def audit_page(
     session: Session = Depends(get_session),
 ):
     events = session.scalars(select(AuditEvent).order_by(AuditEvent.seq.desc()).limit(20)).all()
-    return templates.TemplateResponse(request, "audit.html", {"events": events})
+    documents = session.scalars(select(Document).order_by(Document.id.desc()).limit(20)).all()
+    runs = session.scalars(select(Run).order_by(Run.id.desc()).limit(20)).all()
+    policy_decisions = session.scalars(select(PolicyDecisionRow).order_by(PolicyDecisionRow.id.desc()).limit(20)).all()
+    citations = session.scalars(select(Citation).order_by(Citation.id.desc()).limit(20)).all()
 
+    return templates.TemplateResponse(request, "audit.html", {
+        "events": events,
+        "documents": documents,
+        "runs": runs,
+        "policy_decisions": policy_decisions,
+        "citations": citations,
+    })
 
 @router.post("/audit/verify")
 def audit_verify_submit(
@@ -165,7 +176,19 @@ def audit_verify_submit(
 ):
     result = verify_chain(session)
     events = session.scalars(select(AuditEvent).order_by(AuditEvent.seq.desc()).limit(20)).all()
-    return templates.TemplateResponse(request, "audit.html", {"verify_result": result, "events": events})
+    documents = session.scalars(select(Document).order_by(Document.id.desc()).limit(20)).all()
+    runs = session.scalars(select(Run).order_by(Run.id.desc()).limit(20)).all()
+    policy_decisions = session.scalars(select(PolicyDecisionRow).order_by(PolicyDecisionRow.id.desc()).limit(20)).all()
+    citations = session.scalars(select(Citation).order_by(Citation.id.desc()).limit(20)).all()
+
+    return templates.TemplateResponse(request, "audit.html", {
+        "verify_result": result,
+        "events": events,
+        "documents": documents,
+        "runs": runs,
+        "policy_decisions": policy_decisions,
+        "citations": citations,
+    })
 
 @router.post("/logout")
 def logout_submit(request: Request):

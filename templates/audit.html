@@ -16,11 +16,43 @@
 </p>
 {% endif %}
 
-<h2>Recent events</h2>
+<h2>Recent Audit Events</h2>
 <table>
-<tr><th>Seq</th><th>Action</th><th>Actor</th><th>Entity</th></tr>
+<tr><th>Seq</th><th>Action</th><th>Actor</th><th>Entity</th><th>Timestamp</th></tr>
 {% for e in events %}
-<tr><td>{{ e.seq }}</td><td>{{ e.action }}</td><td>{{ e.actor_id }} ({{ e.actor_role }})</td><td>{{ e.entity_type }}:{{ e.entity_id }}</td></tr>
+<tr><td>{{ e.seq }}</td><td>{{ e.action }}</td><td>{{ e.actor_id }} ({{ e.actor_role }})</td><td>{{ e.entity_type }}:{{ e.entity_id }}</td><td>{{ e.ts }}</td></tr>
+{% endfor %}
+</table>
+
+<h2>Documents (all users)</h2>
+<table>
+<tr><th>ID</th><th>Owner</th><th>Filename</th><th>Status</th><th>SHA-256</th></tr>
+{% for d in documents %}
+<tr><td>{{ d.id }}</td><td>{{ d.owner_id }}</td><td>{{ d.filename }}</td><td class="{{ d.status }}">{{ d.status }}</td><td><small>{{ d.sha256[:12] }}...</small></td></tr>
+{% endfor %}
+</table>
+
+<h2>Runs (all users)</h2>
+<table>
+<tr><th>ID</th><th>Document</th><th>Requested By</th><th>Status</th><th>Provider</th><th>Strategy</th><th>Tokens (p/c)</th></tr>
+{% for r in runs %}
+<tr><td>{{ r.id }}</td><td>{{ r.document_id }}</td><td>{{ r.requested_by }}</td><td>{{ r.status }}</td><td>{{ r.provider }}</td><td>{{ r.strategy }}</td><td>{{ r.total_prompt_tokens }} / {{ r.total_completion_tokens }}</td></tr>
+{% endfor %}
+</table>
+
+<h2>Policy Decisions</h2>
+<table>
+<tr><th>ID</th><th>Document</th><th>Check</th><th>Outcome</th><th>Reason</th></tr>
+{% for p in policy_decisions %}
+<tr><td>{{ p.id }}</td><td>{{ p.document_id }}</td><td>{{ p.check_name }}</td><td class="{{ p.outcome }}">{{ p.outcome }}</td><td>{{ p.reason }}</td></tr>
+{% endfor %}
+</table>
+
+<h2>Citations</h2>
+<table>
+<tr><th>ID</th><th>Run</th><th>Key Point</th><th>Verified</th></tr>
+{% for c in citations %}
+<tr><td>{{ c.id }}</td><td>{{ c.run_id }}</td><td>{{ c.key_point }}</td><td class="{{ 'verified' if c.verified else 'unverified' }}">{{ "YES" if c.verified else "NO" }}</td></tr>
 {% endfor %}
 </table>
 {% endblock %}
