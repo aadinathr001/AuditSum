@@ -30,6 +30,7 @@ from starlette.requests import Request as StarletteRequest
 from fastapi.responses import JSONResponse
 
 @app.get("/")
+@app.head("/")
 def read_root():
     return RedirectResponse(url="/ui/login")
 
@@ -49,3 +50,9 @@ async def custom_401_handler(request: StarletteRequest, exc: FastAPIHTTPExceptio
         return RedirectResponse(url="/ui/login?reason=session_expired")
 
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+@app.get("/healthz")
+@app.head("/healthz")
+def healthz():
+    return {"status": "ok"}
