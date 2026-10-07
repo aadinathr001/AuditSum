@@ -1,295 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuditSum</title>
-    <style>
-        /* ── CSS Custom Properties ── */
-        :root {
-            --color-bg: #f8f9fa;
-            --color-surface: #ffffff;
-            --color-text: #212529;
-            --color-text-muted: #6c757d;
-            --color-border: #dee2e6;
-            --color-primary: #4361ee;
-            --color-primary-hover: #3a56d4;
-            --color-allow: #2ecc71;
-            --color-deny: #e74c3c;
-            --color-flag: #f39c12;
-            --color-verified: #27ae60;
-            --color-unverified: #c0392b;
-            --color-nav-bg: #ffffff;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-            --radius: 8px;
-            --max-width: 900px;
-            --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            --transition: 0.2s ease;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuditSum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2A2420;
+    --ink-soft: #5C5248;
+    --paper: #FAF6EE;
+    --paper-raised: #F1EAD9;
+    --rule: #D9CFB8;
+    --accent: #7A3B2E;
+    --accent-dark: #5C2A21;
+    --accent-paper: #F4E6DE;
+    --verified: #3F6B4A;
+    --verified-bg: #E7EFE6;
+    --unverified: #9C3B2E;
+    --unverified-bg: #F6E6E0;
+    --warn: #8A6A1F;
+    --warn-bg: #F3EAD3;
+    --radius: 3px;
+    --font-serif: "Source Serif 4", Georgia, serif;
+    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
 
-        /* ── Dark Mode ── */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --color-bg: #0f1117;
-                --color-surface: #1a1d27;
-                --color-text: #e4e6ea;
-                --color-text-muted: #8b8fa3;
-                --color-border: #2d3040;
-                --color-nav-bg: #1a1d27;
-                --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-                --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-            }
-        }
+  * { box-sizing: border-box; }
 
-        /* ── Reset & Base ── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-size: 16px; -webkit-text-size-adjust: 100%; }
-        body {
-            font-family: var(--font-sans);
-            background: var(--color-bg);
-            color: var(--color-text);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
+  body {
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: var(--paper);
+    margin: 0;
+    line-height: 1.55;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
 
-        /* ── Navigation ── */
-        .site-nav {
-            background: var(--color-nav-bg);
-            box-shadow: var(--shadow-sm);
-            padding: 0 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .nav-inner {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 56px;
-        }
-        .nav-brand {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--color-primary);
-            text-decoration: none;
-        }
-        .nav-links { display: flex; gap: 0.25rem; }
-        .nav-links a {
-            color: var(--color-text);
-            text-decoration: none;
-            padding: 0.5rem 0.85rem;
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: background var(--transition), color var(--transition);
-        }
-        .nav-links a:hover,
-        .nav-links a:focus-visible {
-            background: var(--color-primary);
-            color: #fff;
-            outline: none;
-        }
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin: 0 0 0.5em 0;
+  }
 
-        /* Hamburger toggle (hidden on desktop) */
-        .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; }
-        .nav-toggle span {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: var(--color-text);
-            margin: 5px 0;
-            border-radius: 2px;
-            transition: transform var(--transition), opacity var(--transition);
-        }
+  h1 { font-size: 1.9rem; }
+  h2 { font-size: 1.25rem; margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); }
+  h2:first-of-type { margin-top: 1rem; border-top: none; padding-top: 0; }
 
-        /* ── Main Content ── */
-        .main-content {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            padding: 2rem 1.25rem;
-        }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
 
-        /* ── Typography ── */
-        h1 { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 0.75rem; font-weight: 700; }
-        h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); margin: 1.5rem 0 0.5rem; font-weight: 600; }
-        p { margin-bottom: 0.75rem; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 
-        /* ── Status Colors ── */
-        .allow { color: var(--color-allow); font-weight: 600; }
-        .deny { color: var(--color-deny); font-weight: 600; }
-        .flag, .redact { color: var(--color-flag); font-weight: 600; }
-        .verified { color: var(--color-verified); font-weight: 600; }
-        .unverified { color: var(--color-unverified); font-weight: 700; }
+  /* ---- Header / Nav ---- */
+  header.site {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0;
+    border-bottom: 3px solid var(--accent);
+  }
 
-        /* ── Tables ── */
-        .table-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin: 1rem 0;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 400px;
-            background: var(--color-surface);
-        }
-        th {
-            background: var(--color-primary);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-        td, th {
-            padding: 0.65rem 0.85rem;
-            text-align: left;
-            border-bottom: 1px solid var(--color-border);
-            white-space: nowrap;
-        }
-        tbody tr:hover { background: rgba(67, 97, 238, 0.04); }
+  .site-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
 
-        /* ── Forms ── */
-        form { margin: 1rem 0; }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-        input[type="email"],
-        input[type="password"],
-        input[type="text"],
-        input[type="file"] {
-            display: block;
-            width: 100%;
-            max-width: 400px;
-            padding: 0.6rem 0.85rem;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            background: var(--color-surface);
-            color: var(--color-text);
-            transition: border-color var(--transition), box-shadow var(--transition);
-            margin-top: 0.25rem;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-        }
-        button, .btn {
-            display: inline-block;
-            padding: 0.6rem 1.4rem;
-            background: var(--color-primary);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-        }
-        button:hover, .btn:hover {
-            background: var(--color-primary-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        button:active, .btn:active { transform: translateY(0); }
+  .brand {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--paper);
+    padding: 16px 0;
+    letter-spacing: 0.01em;
+  }
+  .brand::before { content: "§ "; color: var(--accent); opacity: 0.9; }
 
-        /* ── Cards ── */
-        .card {
-            background: var(--color-surface);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 1rem;
-        }
+  nav.main { display: flex; gap: 4px; }
+  nav.main a {
+    color: #E7DECF;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  nav.main a:hover { background: rgba(255,255,255,0.08); color: #fff; text-decoration: none; }
 
-        /* ── Lists ── */
-        ul { padding-left: 1.25rem; margin: 0.5rem 0; }
-        li { margin-bottom: 0.5rem; }
-        small { color: var(--color-text-muted); }
+  /* ---- Layout ---- */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    animation: rise 0.25s ease;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── Links ── */
-        a { color: var(--color-primary); text-decoration: none; transition: color var(--transition); }
-        a:hover { color: var(--color-primary-hover); text-decoration: underline; }
+  /* ---- Cards / panels ---- */
+  .panel {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
 
-        /* ── Error messages ── */
-        .error-msg { color: var(--color-deny); font-weight: 600; margin: 0.5rem 0; }
+  /* ---- Forms ---- */
+  label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--ink-soft); margin-bottom: 4px; }
+  input[type=email], input[type=password], input[type=text], input[type=file] {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    padding: 9px 12px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+    width: 100%;
+    max-width: 360px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-paper);
+  }
 
-        /* ── Separator ── */
-        hr {
-            border: none;
-            border-top: 1px solid var(--color-border);
-            margin: 1.5rem 0;
-        }
+  /* ---- Buttons ---- */
+  button, .btn {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  button:hover, .btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  button:active, .btn:active { transform: translateY(0); }
+  button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
 
-        /* ══════════════════════════════
-           Responsive Breakpoints
-           ══════════════════════════════ */
+  .btn-danger { background: var(--unverified); }
+  .btn-danger:hover { background: #7a2e22; }
 
-        /* ── Mobile: ≤ 600px ── */
-        @media (max-width: 600px) {
-            .nav-toggle { display: block; }
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 56px;
-                left: 0;
-                right: 0;
-                background: var(--color-nav-bg);
-                box-shadow: var(--shadow-md);
-                padding: 0.5rem 0;
-            }
-            .nav-links.open { display: flex; }
-            .nav-links a {
-                padding: 0.75rem 1.25rem;
-                border-radius: 0;
-                font-size: 1rem;
-            }
-            .main-content { padding: 1.25rem 1rem; }
-            td, th { padding: 0.5rem 0.6rem; font-size: 0.85rem; }
-            input[type="email"],
-            input[type="password"],
-            input[type="text"],
-            input[type="file"] { max-width: 100%; }
-        }
+  /* ---- Tables (ledger style) ---- */
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    border-bottom: 2px solid var(--ink);
+    padding: 8px 10px;
+  }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:hover td { background: var(--paper-raised); }
 
-        /* ── Tablet: 601px–900px ── */
-        @media (min-width: 601px) and (max-width: 900px) {
-            .main-content { padding: 1.5rem 1.25rem; }
-        }
-    </style>
+  /* ---- Status tags ---- */
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    border-left: 3px solid currentColor;
+  }
+  .allow, .verified { color: var(--verified); background: var(--verified-bg); }
+  .deny, .unverified { color: var(--unverified); background: var(--unverified-bg); }
+  .flag, .redact, .pending_approval { color: var(--warn); background: var(--warn-bg); }
+  td.allow, td.deny, td.flag, td.redact, td.verified, td.unverified,
+  td.uploaded, td.denied, td.content_deleted {
+    font-weight: 600;
+  }
+  td.allow::before, td.deny::before, td.flag::before, td.redact::before { content: none; }
+
+  /* make outcome/status table cells read as tags */
+  td.allow, td.verified { color: var(--verified); }
+  td.deny, td.unverified, td.denied { color: var(--unverified); }
+  td.flag, td.redact, td.pending_approval { color: var(--warn); }
+
+  /* ---- Notices ---- */
+  .notice {
+    padding: 11px 16px;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    border-left: 3px solid;
+  }
+  .notice-info { background: var(--warn-bg); border-color: var(--warn); color: #5c4813; }
+  .notice-error { background: var(--unverified-bg); border-color: var(--unverified); color: var(--unverified); }
+  .notice-success { background: var(--verified-bg); border-color: var(--verified); color: var(--verified); }
+
+  small { color: var(--ink-soft); }
+</style>
 </head>
 <body>
-    <nav class="site-nav">
-        <div class="nav-inner">
-            <a href="/ui/" class="nav-brand">AuditSum</a>
-            <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-links').classList.toggle('open')">
-                <span></span><span></span><span></span>
-            </button>
-            <div class="nav-links">
-                <a href="/ui/">Home</a>
-                <a href="/ui/upload">Upload</a>
-                {% set role = get_session_role(request) %}
-                {% if role in ("admin", "auditor") %}
-                <a href="/ui/audit">Auditor Console</a>
-                {% endif %}
-                {% if role == "admin" %}
-                <a href="/ui/admin">Admin</a>
-                {% endif %}
-            </div>
-        </div>
+<header class="site">
+  <div class="site-inner">
+    <span class="brand">AuditSum</span>
+    <nav class="main">
+      <a href="/ui/">Home</a>
+      <a href="/ui/upload">Upload</a>
+      {% set role = get_session_role(request) %}
+      {% if role in ("admin", "auditor") %}
+      <a href="/ui/audit">Auditor Console</a>
+      {% endif %}
+      {% if role == "admin" %}
+      <a href="/ui/admin">Admin</a>
+      {% endif %}
     </nav>
-    <main class="main-content">
-        {% block content %}{% endblock %}
-    </main>
+  </div>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
 </body>
 </html>

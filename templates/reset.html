@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 style="color:red">⚠ Reset Database</h1>
+<h1 class="notice notice-error" style="font-family:var(--font-serif); font-size:1.3rem; display:inline-block;">⚠ Reset Database</h1>
 <p>This will <strong>permanently delete all data</strong> — every user, document, run, and audit event — and recreate empty tables.</p>
 <p>This cannot be undone.</p>
 
-{% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+{% if error %}<p class="notice notice-error">{{ error }}</p>{% endif %}
 
 <form method="post" action="/ui/admin/reset">
-    <label>Type <strong>RESET</strong> to confirm: <input type="text" name="confirm" required></label><br><br>
-    <button type="submit" style="background:red; color:white;">Permanently Delete Everything</button>
+    <label>Type <strong>RESET</strong> to confirm</label>
+    <input type="text" name="confirm" required><br><br>
+    <button type="submit" class="btn-danger">Permanently Delete Everything</button>
 </form>
 {% endblock %}
