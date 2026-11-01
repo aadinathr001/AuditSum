@@ -1,3 +1,5 @@
+Live on :  https://auditsum.onrender.com/ui/login
+
 # AuditSum
 
 A governed LLM summarization service — built to prove **what was allowed, what happened, and where every output came from**, not just to produce a summary.
