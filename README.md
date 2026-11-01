@@ -1,4 +1,3 @@
-Live on :  https://auditsum.onrender.com/ui/login
 
 # AuditSum
 
