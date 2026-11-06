@@ -52,6 +52,41 @@ A server-rendered interface (FastAPI + Jinja2), not just a Swagger page:
 - Role-aware navigation — links only appear for roles that can actually use them.
 - Unauthenticated visits to any UI page redirect cleanly to login with an explanatory message, rather than showing a raw error.
 
+
+### The Core Narrative: Secure by Design, Not by Client Consent
+
+"For a system dealing with compliance, policy enforcement, and hard auditing constraints, security and data integrity cannot be trusted to the browser.
+By choosing FastAPI + Jinja2 (Server-Side Rendering) over a modern Single-Page Application (SPA) like React or Vue, we eliminate an entire class of client-side vulnerabilities. The server acts as a strict, un-bypassable gatekeeper for both data access and visual layout."
+
+Key Technical Justifications (The "Why")
+
+
+1. Tamper-Proof, Role-Aware Navigation
+
+• The Choice: Role-aware navigation links only render if the server permits it.
+• The Justification: In an SPA, all routing code is downloaded to the browser; an advanced user can modify client-side JavaScript to reveal hidden buttons or sidebars. With Jinja2, if a user isn’t an auditor, the HTML for the Auditor Console literally does not exist in the page sent to their machine.
+
+2. Bulletproof Auth & State Management
+
+• The Choice: Signed session cookies and clean unauthenticated redirects.
+• The Justification: Storing access tokens in browser localStorage leaves them vulnerable to Cross-Site Scripting (XSS). By handling authentication via secure, server-signed HTTP-only session cookies, the browser becomes a dumb terminal. FastAPI handles the redirection logic natively before a single frame of the UI is rendered, ensuring no unauthenticated data leaks into browser memory.
+
+3. Real-Time Lineage & Verification (Without Hydration Lag)
+
+• The Choice: Server-rendered "Verify Chain" banners and citation badges.
+• The Justification: When an auditor hits "Verify Chain," the backend computes complex relational steps, hits Postgres triggers via Alembic-managed schemas, and evaluates the lineage. Because Jinja2 renders this server-side, the auditor receives a fully computed, cryptographically sound state. We avoid the "spinning loader" layout shifts common in SPAs where multiple API endpoints must be hit and stitched together by the browser.
+
+4. Consolidated Audit Trails
+
+• The Choice: Full audit logging on every login/logout and admin action.
+• The Justification: In a standard decoupled frontend/backend stack, logging an action requires a network call from the frontend that could fail, be blocked, or be spoofed. With SSR, the UI action and the backend database transaction happen in the exact same execution loop on the server. If the audit log fails to write, the UI page fails to render—guaranteeing a perfect 1:1 match between what the user did and what was logged.
+
+5. High Performance, Zero Build Overhead
+
+• The Choice: FastAPI + Jinja2 instead of a heavy JavaScript framework.
+• The Justification: FastAPI gives us incredibly fast, asynchronous execution, automatic validation, and native data handling. Pairing it with Jinja2 avoids the massive build pipelines, complex state managers (Redux/Pinia), and dependency vulnerabilities associated with NPM ecosystems. It keeps the stack lean, highly maintainable, and hyper-focused on data accuracy rather than client-side rendering gymnastics.
+
+
 ---
 
 ## Architecture
@@ -78,6 +113,8 @@ Browser (Jinja2 + server-rendered HTML)
 - **Everything runs at zero cost** — free database, free LLM tier, free hosting.
 
 ---
+## why this design
+I chose a FastAPI + Jinja2 server-rendered architecture because this project prioritizes data integrity, bulletproof auditing, and strict security. By keeping the rendering logic on the server, we guarantee that role-based access control, audit logs, and policy lineages are structurally impossible for an end-user to manipulate or bypass in the browser.
 
 ## Try it yourself
 
